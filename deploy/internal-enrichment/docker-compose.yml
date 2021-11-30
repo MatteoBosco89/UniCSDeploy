@@ -1,0 +1,236 @@
+version: '3'
+services:
+  connector-abuseipdb:
+    image: opencti/connector-abuseipdb:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=AbuseIPDB
+      - CONNECTOR_SCOPE=IPv4-Addr
+      - CONNECTOR_AUTO=true
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - ABUSEIPDB_API_KEY=ChangeMe
+      - ABUSEIPDB_MAX_TLP=TLP:AMBER
+    restart: always
+  connector-cape-sandbox:
+    image: opencti/connector-cape-sandbox:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=CAPEv2_Sandbox
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - "CONNECTOR_NAME=CAPEv2 Sandbox"
+      - CONNECTOR_SCOPE=StixFile,Artifact
+      - CONNECTOR_AUTO=false # Enable/disable auto-enrichment of observables
+      - CONNECTOR_CONFIDENCE_LEVEL=50 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - CAPE_SANDBOX_URL=ChangeMe # Base URL
+      - CAPE_SANDBOX_TOKEN=ChangeMe # Change if using auth
+      - CAPE_SANDBOX_ROUTE=tor # Network routing, other examples include: none, internet, vpn0
+      - CAPE_SANDBOX_TIMEOUT=300 # Maximum amount of seconds to run the analysis for
+      - CAPE_SANDBOX_ENFORCE_TIMEOUT=false # Enforce analysis to run for the full timeout period
+      - CAPE_SANDBOX_PRIORITY=1 # Set priority for submitted samples, 1-3, where 3 is highest priority
+      - CAPE_SANDBOX_TRY_EXTRACT=false # Try and extract configs statically without a VM first (this is currently buggy on CAPEv2 side)
+      - CAPE_SANDBOX_OPTIONS=procmemdump=1,import_reconstruction=1,fake-rdtsc=1 # List of options to be passed to the analysis package
+      - CAPE_SANDBOX_LESS_NOISE=true # Only upload Artifacts associated with Yara rule matches
+      - CAPE_SANDBOX_COOLDOWN_TIME=20 # Set the amount of seconds to wait between retries of the API
+      - CAPE_SANDBOX_MAX_RETRIES=10 # Set the amount of maximum retries for the API before failing
+      - CAPE_SANDBOX_MAX_TLP=TLP:AMBER
+    restart: always
+  connector-greynoise:
+    image: opencti/connector-greynoise:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=greynoise
+      - CONNECTOR_SCOPE=ipv4-addr
+      - CONNECTOR_AUTO=true
+      - CONNECTOR_CONFIDENCE_LEVEL=80 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - GREYNOISE_KEY=ChangeMe
+      - GREYNOISE_MAX_TLP=TLP:AMBER
+      - GREYNOISE_NAME=GreyNoise sensors
+      - GREYNOISE_DESCRIPTION=GreyNoise collects and analyzes untargeted, widespread, and opportunistic scan and attack activity that reaches every server directly connected to the Internet.
+      - GREYNOISE_SIGHTING_NOT_SEEN=false
+      - GREYNOISE_SPOOFABLE_CONFIDENCE_LEVEL=30
+    restart: always
+  connector-hatching-triage-sandbox:
+    image: opencti/connector-hatching-triage-sandbox:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=Hatching_Triage_Sandbox
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - "CONNECTOR_NAME=Hatching Triage Sandbox"
+      - CONNECTOR_SCOPE=Artifact
+      - CONNECTOR_AUTO=false # Enable/disable auto-enrichment of observables
+      - CONNECTOR_CONFIDENCE_LEVEL=50 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - HATCHING_TRIAGE_SANDBOX_BASE_URL=https://api.tria.ge # Public URL, see https://tria.ge/docs/
+      - HATCHING_TRIAGE_SANDBOX_TOKEN=ChangeMe # See https://tria.ge/account
+      - HATCHING_TRIAGE_SANDBOX_USE_EXISTING_ANALYSIS=true # If true, get existing analysis if any
+      - HATCHING_TRIAGE_SANDBOX_FAMILY_COLOR=#0059f7 # Label color for family
+      - HATCHING_TRIAGE_SANDBOX_BOTNET_COLOR=#f79e00 # Label color for botnet
+      - HATCHING_TRIAGE_SANDBOX_CAMPAIGN_COLOR=#7a01e5 # Label color for campaign
+      - HATCHING_TRIAGE_SANDBOX_TAG_COLOR=#54483b # Label color for all other labels
+      - HATCHING_TRIAGE_SANDBOX_MAX_TLP=TLP:AMBER
+    restart: always
+  connector-hybrid-analysis-sandbox:
+    image: opencti/connector-hybrid-analysis-sandbox:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - "CONNECTOR_NAME=Hybrid Analysis (Sandbox Windows 10 64bit)"
+      - CONNECTOR_SCOPE=StixFile,Artifact,Url,Domain,X-OpenCTI-Hostname
+      - CONNECTOR_AUTO=true # Enable/disable auto-enrichment of observables
+      - CONNECTOR_CONFIDENCE_LEVEL=50 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - HYBRID_ANALYSIS_TOKEN=ChangeMe
+      - HYBRID_ANALYSIS_ENVIRONMENT_ID=110 # Available environments ID: 300: 'Linux (Ubuntu 16.04, 64 bit)', 200: 'Android Static Analysis', 120: 'Windows 7 64 bit', 110: 'Windows 7 32 bit (HWP Support)', 100: 'Windows 7 32 bit'
+      - HYBRID_ANALYSIS_MAX_TLP=TLP:AMBER
+    restart: always
+  connector-hygiene:
+    image: opencti/connector-hygiene:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=Hygiene
+      - CONNECTOR_SCOPE=IPv4-Addr,IPv6-Addr,Domain-Name,StixFile,Artifact
+      - CONNECTOR_AUTO=true
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - HYGIENE_WARNINGLISTS_SLOW_SEARCH=false # Enable warning lists slow search mode
+    restart: always
+  connector-import-:
+    image: opencti/connector-import-external-reference:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=ImportExternalReference
+      - CONNECTOR_SCOPE=External-Reference
+      - CONNECTOR_AUTO=false # Enable/disable auto-import of external references
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - IMPORT_EXTERNAL_REFERENCE_IMPORT_AS_PDF=true # Import as PDF file
+      - IMPORT_EXTERNAL_REFERENCE_IMPORT_AS_MD=true # Import as MarkDown file
+      - IMPORT_EXTERNAL_REFERENCE_IMPORT_PDF_AS_MD=true # If import_as_md is true, try to convert PDF as Markdown
+    restart: always
+  connector-intezer-sandbox:
+    image: opencti/connector-intezer-sandbox:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=Intezer_Sandbox
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - "CONNECTOR_NAME=IntezerSandbox"
+      - CONNECTOR_SCOPE=Artifact
+      - CONNECTOR_AUTO=false # Enable/disable auto-enrichment of observables
+      - CONNECTOR_CONFIDENCE_LEVEL=50 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - INTEZER_SANDBOX_API_KEY=ChangeMe # See https://analyze.intezer.com/account-details
+      - INTEZER_SANDBOX_FAMILY_COLOR=#0059f7 # Label color for family
+      - INTEZER_SANDBOX_MALICIOUS_COLOR=#d90e18 # Label color for malicious verdict
+      - INTEZER_SANDBOX_TRUSTED_COLOR=#d90e18 # And so on...
+      - INTEZER_SANDBOX_UNKNOWN_COLOR=#ffff00
+      - INTEZER_SANDBOX_SUSPICIOUS_COLOR=#f79e00
+      - INTEZER_SANDBOX_MAX_TLP=TLP:AMBER
+    restart: always
+  connector-ipinfo:
+    image: opencti/connector-ipinfo:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=IpInfo
+      - CONNECTOR_SCOPE=IPv4-Addr
+      - CONNECTOR_AUTO=true
+      - CONNECTOR_CONFIDENCE_LEVEL=75 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - IPINFO_TOKEN=ChangeMe
+      - IPINFO_MAX_TLP=TLP:AMBER
+    restart: always
+  connector-ivre:
+    image: opencti/connector-ivre:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=ivre
+      - CONNECTOR_SCOPE=autonomous-system,domain-name,ipv4-addr,ipv6-addr,mac-addr,x509-certificate
+      - CONNECTOR_AUTO=true
+      - CONNECTOR_CONFIDENCE_LEVEL=100 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - IVRE_MAX_TLP=TLP:AMBER
+    restart: always
+  connector-lastinfosec-enrichment:
+    image: opencti/lastinfosec-enrichment:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=Last Info Sec Enrichment
+      - CONNECTOR_SCOPE=StixFile,Domain-Name
+      - CONNECTOR_AUTO=true # Enable/disable auto-enrichment of observables
+      - CONNECTOR_CONFIDENCE_LEVEL=50 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - CONFIG_LIS_APIKEY_CTI=ChangeMe
+    restart: always
+  connector-malbeacon:
+    image: opencti/connector-malbeacon:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=Malbeacon
+      - CONNECTOR_AUTO=false # Enable/disable auto-enrichment of observables
+      - CONNECTOR_SCOPE=ipv4-addr,ipv6-addr,domain-name
+      - CONNECTOR_CONFIDENCE_LEVEL=30 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - MALBEACON_API_KEY=ChangeMe
+    restart: always
+  connector-shodan:
+    image: opencti/connector-shodan:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=Shodan
+      - CONNECTOR_SCOPE=IPv4-Addr
+      - CONNECTOR_AUTO=true
+      - CONNECTOR_CONFIDENCE_LEVEL=75 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - SHODAN_TOKEN=ChangeMe
+      - SHODAN_MAX_TLP=TLP:AMBER
+      - SHODAN_CREATE_INDICATORS=true
+    restart: always
+  connector-virustotal:
+    image: opencti/connector-virustotal:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=VirusTotal
+      - CONNECTOR_SCOPE=StixFile,Artifact
+      - CONNECTOR_AUTO=true # Enable/disable auto-enrichment of observables
+      - CONNECTOR_CONFIDENCE_LEVEL=50 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - VIRUSTOTAL_TOKEN=ChangeMe
+      - VIRUSTOTAL_MAX_TLP=TLP:AMBER
+    restart: always

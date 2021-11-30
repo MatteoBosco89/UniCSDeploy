@@ -1,0 +1,104 @@
+version: "3"
+services:
+  connector-backup-files:
+    image: opencti/connector-backup-files:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR} # Local OpenCTI URL
+      - OPENCTI_TOKEN=ChangeMe # Local OpenCTI token
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=STREAM
+      - CONNECTOR_LIVE_STREAM_ID=live # ID of the live stream created in the OpenCTI UI
+      - CONNECTOR_NAME=BackupFiles
+      - CONNECTOR_SCOPE=backup
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - BACKUP_PROTOCOL=local # Protocol for file copy (only `local` is supported for now).
+      - BACKUP_PATH=/tmp # Path to be used to copy the data, can be relative or absolute.
+    restart: always
+  connector-elastic:
+    image: opencti/connector-elastic:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=STREAM
+      - CONNECTOR_LIVE_STREAM_ID=live # ID of the live stream created in the OpenCTI UI
+      - "CONNECTOR_NAME=OpenCTI Elastic Connector"
+      - CONNECTOR_SCOPE=elastic
+      - CONNECTOR_CONFIDENCE_LEVEL=80 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - "CONNECTOR_ENTITY_NAME=Elastic Detection Cluster"
+      - "CONNECTOR_ENTITY_DESCRIPTION=Elasticsearch detection engine cluster"
+      - CONNECTOR_MODE=ecs # Options
+    restart: always
+  connector-hygiene:
+    image: opencti/connector-history:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - OPENCTI_SSL_VERIFY=true
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=STREAM
+      - CONNECTOR_NAME=History
+      - CONNECTOR_SCOPE=history
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+    restart: always
+  connector-splunk:
+    image: opencti/connector-splunk:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=STREAM
+      - CONNECTOR_LIVE_STREAM_ID=live # ID of the live stream created in the OpenCTI UI
+      - "CONNECTOR_NAME=OpenCTI Elastic Connector"
+      - CONNECTOR_SCOPE=elastic
+      - CONNECTOR_CONFIDENCE_LEVEL=80 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR
+      - SPLUNK_URL=https://splunk.changeme.com:8089
+      - SPLUNK_SSL_VERIFY=true
+      - SPLUNK_LOGIN=ChangeMe
+      - SPLUNK_PASSWORD=ChangeMe
+      - SPLUNK_OWNER=nobody
+      - SPLUNK_APP=search
+      - SPLUNK_KV_STORE_NAME=opencti
+    restart: always
+  connector-tanium:
+    image: opencti/connector-tanium:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=STREAM
+      - CONNECTOR_LIVE_STREAM_ID=live # ID of the live stream created in the OpenCTI UI
+      - CONNECTOR_NAME=Tanium
+      - CONNECTOR_SCOPE=tanium
+      - CONNECTOR_CONFIDENCE_LEVEL=80 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - TANIUM_URL=https://console.changeme.com
+      - TANIUM_SSL_VERIFY=true
+      - TANIUM_LOGIN=ChangeMe
+      - TANIUM_PASSWORD=ChangeMe
+      - TANIUM_HASHES_IN_REPUTATION=true
+      - TANIUM_NO_HASHES_IN_INTELS=true
+      - TANIUM_AUTO_QUICKSCAN=False # trigger a quick scan when an intel document is imported
+      - TANIUM_COMPUTER_GROUPS=1 # computer groups targeted by the auto quick scan (separated by ,)
+    restart: always
+  connector-threatbus:
+    image: opencti/connector-threatbus:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ChangeMe
+      - CONNECTOR_ID=ChangeMe
+      - CONNECTOR_TYPE=STREAM
+      - CONNECTOR_NAME=Threat Bus
+      - CONNECTOR_SCOPE=threatbus
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_ENTITY_NAME=ChangeMe
+      - CONNECTOR_ENTITY_DESCRIPTION=ChangeMe
+      - THREATBUS_ZMQ_HOST=localhost
+      - THREATBUS_ZMQ_PORT=13370
+    restart: always

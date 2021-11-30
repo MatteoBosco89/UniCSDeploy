@@ -1,0 +1,565 @@
+version: '3'
+services:
+  connector-alienvault:
+    image: opencti/connector-alienvault:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=77bc1f65-db11-4b23-bb95-9af56590378b
+      - CONNECTOR_ID=050f5611-fba2-4fbe-9d72-56729cf673da
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=AlienVault
+      - CONNECTOR_SCOPE=alienvault
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=false
+      - CONNECTOR_LOG_LEVEL=info
+      - ALIENVAULT_BASE_URL=https://otx.alienvault.com
+      - ALIENVAULT_API_KEY=a08083773582adc5a7a622655e5c0c63453c572b469bf42ff00720de443582b7
+      - ALIENVAULT_TLP=White
+      - ALIENVAULT_CREATE_OBSERVABLES=true
+      - ALIENVAULT_CREATE_INDICATORS=true
+      - ALIENVAULT_PULSE_START_TIMESTAMP=2020-05-01T00:00:00                  # BEWARE! Could be a lot of pulses!
+      - ALIENVAULT_REPORT_TYPE=threat-report
+      - ALIENVAULT_REPORT_STATUS=New
+      - ALIENVAULT_GUESS_MALWARE=false                                        # Use tags to guess malware.
+      - ALIENVAULT_GUESS_CVE=false                                            # Use tags to guess CVE.
+      - ALIENVAULT_EXCLUDED_PULSE_INDICATOR_TYPES=FileHash-MD5,FileHash-SHA1  # Excluded Pulse indicator types.
+      - ALIENVAULT_ENABLE_RELATIONSHIPS=true                                  # Enable/Disable relationship creation between SDOs.
+      - ALIENVAULT_ENABLE_ATTACK_PATTERNS_INDICATES=true                      # Enable/Disable "indicates" relationships between indicators and attack patterns
+      - ALIENVAULT_INTERVAL_SEC=1800
+    restart: always
+    
+    
+  connector-amitt:
+    image: opencti/connector-amitt:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=89141e4f-ee42-432b-83a3-69681f70137e
+      - CONNECTOR_ID=3688abdf-d9bf-4caa-84f9-3a6fde4dd6a1
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=AM!TT
+      - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool,report
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_LOG_LEVEL=info
+      - AMITT_FILE_URL=https://raw.githubusercontent.com/VVX7/cti/master/amitt-attack/amitt-attack.json
+      - PRE_AMITT_FILE_URL=https://raw.githubusercontent.com/VVX7/cti/master/amitt-pre-attack/amitt-pre-attack.json
+      - AMITT_INTERVAL=7 # In days, must be strictly greater than 1
+    restart: always
+    
+    
+  connector-cape:
+    image: opencti/connector-cape:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=ebe6f0a5-013a-40f5-bda7-8aa9b5104ca1
+      - CONNECTOR_ID=68478a0d-5f43-42e0-9879-5cb9084224fd
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=CAPE
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_LOG_LEVEL=info
+      - CAPE_CREATE_INDICATORS=true
+      - CAPE_ENABLE_NETWORK_TRAFFIC=false # enable creation of net Traffic (Very Loud)
+      - CAPE_ENABLE_REGISTRY_KEYS=false # enable creation of Created registry Keys (Very Loud)
+      - CAPE_API_URL=https://sandbox.no/apiv2/ # CAPE API EP
+      - CAPE_BASE_URL=https://sandbox.no/ # CAPE Web UI URL
+      - CAPE_INTERVAL=30 #in Min
+      - CAPE_START_TASK_ID=0 #in Min
+      - CAPE_REPORT_SCORE=7
+      - VERIFY_SSL=true
+    restart: always
+    
+    
+  # connector-crowdstrike:
+    # image: opencti/connector-crowdstrike:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=8aa41507-2857-4269-8695-b8c85af056dc
+      # - CONNECTOR_ID=d449da86-a5e5-4b73-aa68-1796be8508c6
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=CrowdStrike
+      # - CONNECTOR_SCOPE=crowdstrike
+      # - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=false
+      # - CONNECTOR_LOG_LEVEL=info
+      # - CROWDSTRIKE_BASE_URL=https://api.crowdstrike.com
+      # - CROWDSTRIKE_CLIENT_ID=ChangeMe
+      # - CROWDSTRIKE_CLIENT_SECRET=ChangeMe
+      # - CROWDSTRIKE_TLP=Amber
+      # - CROWDSTRIKE_CREATE_OBSERVABLES=true
+      # - CROWDSTRIKE_CREATE_INDICATORS=true
+      # - CROWDSTRIKE_SCOPES=actor,report,indicator,yara_master
+      # - CROWDSTRIKE_ACTOR_START_TIMESTAMP=0
+      # - CROWDSTRIKE_REPORT_START_TIMESTAMP=0 # BEWARE! A lot of reports!
+      # - CROWDSTRIKE_REPORT_STATUS=New
+      # - CROWDSTRIKE_REPORT_INCLUDE_TYPES=notice,tipper,intelligence report,periodic report
+      # - CROWDSTRIKE_REPORT_TYPE=threat-report
+      # - CROWDSTRIKE_REPORT_GUESS_MALWARE=false # Use report tags to guess malware
+      # - CROWDSTRIKE_INDICATOR_START_TIMESTAMP=0 # BEWARE! A lot of indicators!
+      # - CROWDSTRIKE_INDICATOR_EXCLUDE_TYPES=hash_ion,hash_md5,hash_sha1
+      # - CROWDSTRIKE_INDICATOR_LOW_SCORE=40
+      # - CROWDSTRIKE_INDICATOR_LOW_SCORE_LABELS=MaliciousConfidence/Low
+      # - CROWDSTRIKE_INTERVAL_SEC=1800
+    # restart: always
+   
+    
+    
+  connector-cryptolaemus:
+    image: opencti/connector-cryptolaemus:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=622a62e2-bfbf-475b-88d8-ad8b606caee4
+      - CONNECTOR_ID=76a3034b-4904-4e95-a36e-de907c881073
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=Cryptolaemus
+      - CONNECTOR_SCOPE=cryptolaemus
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_LOG_LEVEL=info
+    restart: always
+    
+    
+  connector-cuckoo:
+    image: opencti/connector-cuckoo:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=1ba28c3c-9e04-47e0-b31e-c673a6ac7b73
+      - CONNECTOR_ID=ec0f8c86-6af7-487e-aa4c-6502a199be08
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=cuckoo
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_LOG_LEVEL=info
+      - CUCKOO_CREATE_INDICATORS=true
+      - CUCKOO_ENABLE_NETWORK_TRAFFIC=false # enable creation of net Traffic (Very Loud)
+      - CUCKOO_ENABLE_REGISTRY_KEYS=false # enable creation of Created registry Keys (Very Loud)
+      - CUCKOO_API_URL=https://sandbox.no/api/ # Cuckoo API EP
+      - CUCKOO_BASE_URL=https://sandbox.no/ # Cuckoo Web UI URL
+      - CUCKOO_INTERVAL=30 #in Min
+      - CUCKOO_START_TASK_ID=0 #in Min
+      - CUCKOO_REPORT_SCORE=7
+      - VERIFY_SSL=true
+    restart: always
+    
+    
+  connector-cve:
+    image: opencti/connector-cve:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=a20eb2b6-9c0a-493a-a289-93b3dbad7209
+      - CONNECTOR_ID=1c5dc516-36f3-4390-9470-ebb9f3a50965
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=Common Vulnerabilities and Exposures
+      - CONNECTOR_SCOPE=identity,vulnerability
+      - CONNECTOR_CONFIDENCE_LEVEL=75 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=info
+      - CVE_IMPORT_HISTORY=true # Import history at the first run (after only recent), reset the connector state if you want to re-import
+      - CVE_NVD_DATA_FEED=https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-recent.json.gz
+      - CVE_HISTORY_DATA_FEED=https://nvd.nist.gov/feeds/json/cve/1.1/
+      - CVE_INTERVAL=7 # In days, must be strictly greater than 1
+    restart: always
+    
+    
+  connector-cyber-threat-coalition:
+    image: opencti/connector-cyber-threat-coalition:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=840f33a0-dd31-4791-99a3-a1c50225beff
+      - CONNECTOR_ID=d9aa9be5-a034-4311-8551-480e20a5d4fa
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=CyberThreatCoalition
+      - CONNECTOR_SCOPE=indicator,report,identity
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=false
+      - CONNECTOR_LOG_LEVEL=info
+      - CYBER_THREAT_COALITION_INTERVAL=604800 # Seconds (1 week)
+      - CYBER_THREAT_COALITION_BASE_URL=https://blacklist.cyberthreatcoalition.org/vetted
+      - CYBER_THREAT_COALITION_CREATE_INDICATORS=true
+      - CYBER_THREAT_COALITION_CREATE_OBSERVABLES=true
+    restart: always
+    
+    
+  connector-cybercrimetracker:
+    image: opencti/connector-cybercrime-tracker:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=67247951-ae5a-4c0d-9c0f-6a0906faab4d
+      - CONNECTOR_ID=a7f3c76b-4d3e-4048-9685-08b10161b7fc
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=Cybercrime-Tracker
+      - CONNECTOR_SCOPE=cybercrime-tracker
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_LOG_LEVEL=info
+      - CYBERCRIME_TRACKER_FEED_URL=http://cybercrime-tracker.net/rss.xml
+      - CYBERCRIME_TRACKER_TLP=WHITE
+      - CYBERCRIME_TRACKER_INTERVAL=86400
+      - CYBERCRIME_TRACKER_CREATE_INDICATORS=true
+      - CYBERCRIME_TRACKER_CREATE_OBSERVABLES=true
+    restart: always
+    
+    
+  # connector-kaspersky:
+    # image: opencti/connector-kaspersky:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=fda223b1-fd77-4536-8138-a94120ff0f65
+      # - CONNECTOR_ID=52332a8a-58a1-45e1-a4fc-78736c81f8ba
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=Kaspersky
+      # - CONNECTOR_SCOPE=kaspersky
+      # - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=false
+      # - CONNECTOR_LOG_LEVEL=info
+      # - KASPERSKY_BASE_URL=https://tip.kaspersky.com
+      # - KASPERSKY_USER=ChangeMe
+      # - KASPERSKY_PASSWORD=ChangeMe
+      # - KASPERSKY_CERTIFICATE_PATH=/run/secrets/kaspersky_certificate
+      # - KASPERSKY_TLP=Amber
+      # - KASPERSKY_CREATE_OBSERVABLES=true
+      # - KASPERSKY_CREATE_INDICATORS=true
+      # - KASPERSKY_SCOPES=publication,master_ioc,master_yara
+      # - KASPERSKY_PUBLICATION_START_TIMESTAMP=0
+      # - KASPERSKY_PUBLICATION_REPORT_TYPE=threat-report
+      # - KASPERSKY_PUBLICATION_REPORT_STATUS=New
+      # - KASPERSKY_PUBLICATION_REPORT_IGNORE_PREFIXES=Monthly APT activity report
+      # - KASPERSKY_PUBLICATION_EXCLUDED_IOC_INDICATOR_TYPES=Md5sum, FileItem/Sha1sum  # OpenIOC search values.
+      # - KASPERSKY_MASTER_IOC_FETCH_WEEKDAY=1  # If present then the Master IOC is fetched on given ISO weekday.
+      # - KASPERSKY_MASTER_IOC_EXCLUDED_IOC_INDICATOR_TYPES=md5Hash, sha1Hash  # OpenIOC indicator types.
+      # - KASPERSKY_MASTER_IOC_REPORT_TYPE=threat-report
+      # - KASPERSKY_MASTER_IOC_REPORT_STATUS=New
+      # - KASPERSKY_MASTER_YARA_FETCH_WEEKDAY=2  # If present then the Master YARA is fetched on given ISO weekday.
+      # - KASPERSKY_MASTER_YARA_INCLUDE_REPORT=true
+      # - KASPERSKY_MASTER_YARA_REPORT_TYPE=threat-report
+      # - KASPERSKY_MASTER_YARA_REPORT_STATUS=New
+      # - KASPERSKY_INTERVAL_SEC=43200
+    # restart: always
+    # secrets:
+      # - kaspersky_certificate
+  # connector-lastinfosec:
+    # image: connector-lastinfosec:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=ChangeMe
+      # - CONNECTOR_ID=ChangeMe
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=lastinfosec-CTI
+      # - CONNECTOR_SCOPE=application/json
+      # - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=true
+      # - CONNECTOR_LOG_LEVEL=info
+      # - CONFIG_LIS_URL_CTI=https://api.client.lastinfosec.com/v2/stix21/getlasthour?api_key=
+      # - CONFIG_LIS_APIKEY_CTI=ChangeMe
+    # restart: always
+  # connector-malpedia:
+    # image: opencti/connector-malpedia:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=ChangeMe
+      # - CONNECTOR_ID=ChangeMe
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=Malpedia
+      # - CONNECTOR_SCOPE=malpedia
+      # - CONNECTOR_CONFIDENCE_LEVEL=30 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=false
+      # - CONNECTOR_LOG_LEVEL=info
+      # - MALPEDIA_AUTH_KEY= # Empty key only fetches TLP:WHITE information
+      # - MALPEDIA_INTERVAL_SEC=86400 # Run once every day
+      # - MALPEDIA_IMPORT_INTRUSION_SETS=false
+      # - MALPEDIA_IMPORT_YARA=true
+      # - MALPEDIA_CREATE_INDICATORS=true
+      # - MALPEDIA_CREATE_OBSERVABLES=true
+    # restart: always
+  # connector-mandiant:
+    # image: opencti/connector-mandiant:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=ChangeMe
+      # - CONNECTOR_ID=ChangeMe
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=Mandiant
+      # - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool,report
+      # - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=true
+      # - CONNECTOR_LOG_LEVEL=info
+      # - MANDIANT_API_URL=https://api.intelligence.mandiant.com
+      # - MANDIANT_API_V3_PUBLIC=ChangeMe
+      # - MANDIANT_API_V3_SECRET=ChangeMe
+      # - MANDIANT_COLLECTIONS=reports,indicators
+      # - MANDIANT_IMPORT_START_DATE=2020-01-01
+      # - MANDIANT_INTERVAL=5 # Required, in minutes
+    # restart: always
+  # connector-misp:
+    # image: opencti/connector-misp:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=ChangeMe
+      # - CONNECTOR_ID=ChangeMe
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=MISP
+      # - CONNECTOR_SCOPE=misp
+      # - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=false
+      # - CONNECTOR_LOG_LEVEL=info
+      # - MISP_URL=http://localhost # Required
+      # - MISP_REFERENCE_URL= # Optional, will be used to create external reference to MISP event (default is "url")
+      # - MISP_KEY=ChangeMe # Required
+      # - MISP_SSL_VERIFY=False # Required
+      # - MISP_DATETIME_ATTRIBUTE=timestamp # Required, filter to be used in query for new MISP events
+      # - MISP_CREATE_REPORTS=True # Required, create report for MISP event
+      # - MISP_CREATE_INDICATORS=True # Required, create indicators from attributes
+      # - MISP_CREATE_OBSERVABLES=True # Required, create observables from attributes
+      # - MISP_CREATE_OBJECT_OBSERVABLES=True # Required, create text observables for MISP objects
+      # - MISP_REPORT_CLASS=MISP Event # Optional, report_class if creating report for event
+      # - MISP_IMPORT_FROM_DATE=2000-01-01 # Optional, import all event from this date
+      # - MISP_IMPORT_TAGS=opencti:import,type:osint # Optional, list of tags used for import events
+      # - MISP_IMPORT_TAGS_NOT= # Optional, list of tags to not include
+      # - MISP_IMPORT_CREATOR_ORGS= # Optional, only import events created by this ORG (put the identifier here)
+      # - MISP_IMPORT_OWNER_ORGS= # Optional, only import events owned by this ORG (put the identifier here)
+      # - MISP_IMPORT_DISTRIBUTION_LEVELS=0,1,2,3 # Optional, only import events with the given distribution levels
+      # - MISP_IMPORT_THREAT_LEVELS=1,2,3,4 # Optional only import events with the given threat levels
+      # - MISP_IMPORT_ONLY_PUBLISHED=False
+      # - MISP_IMPORT_WITH_ATTACHMENTS=False # Optional, try to import a PDF file from the attachment attribute
+      # - MISP_IMPORT_TO_IDS_NO_SCORE=40 # Optional, use as a score for the indicator/observable if the attribute to_ids is no
+      # - MISP_IMPORT_UNSUPPORTED_OBSERVABLES_AS_TEXT=False #  Optional, import unsupported observable as x_opencti_text
+      # - MISP_INTERVAL=1 # Required, in minutes
+    # restart: always
+    
+    
+  connector-mitre:
+    image: opencti/connector-mitre:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=2a47679d-e236-424f-9df2-50ff36a05049
+      - CONNECTOR_ID=d15d48c7-5c39-4673-b279-dad690408295
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - "CONNECTOR_NAME=MITRE ATT&CK"
+      - CONNECTOR_SCOPE=marking-definition,identity,attack-pattern,course-of-action,intrusion-set,campaign,malware,tool,report,external-reference-as-report
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=info
+      - MITRE_ENTERPRISE_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json
+      - MITRE_PRE_ATTACK_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/pre-attack/pre-attack.json
+      - MITRE_MOBILE_ATTACK_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/mobile-attack/mobile-attack.json
+      - MITRE_ICS_ATTACK_FILE_URL=https://raw.githubusercontent.com/mitre/cti/master/ics-attack/ics-attack.json
+      - MITRE_INTERVAL=7 # In days, must be strictly greater than 1
+    restart: always
+    
+    
+  connector-opencti:
+    image: opencti/connector-opencti:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=0c1bbca5-0f8f-4f73-8d12-06542c700f44
+      - CONNECTOR_ID=57ea0208-9a05-4d48-846d-e28bc451ea6e
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=OpenCTI
+      - CONNECTOR_SCOPE=marking-definition,identity,location
+      - CONNECTOR_CONFIDENCE_LEVEL=90 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=info
+      - CONFIG_SECTORS_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/sectors.json
+      - CONFIG_GEOGRAPHY_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/geography.json
+      - CONFIG_INTERVAL=7 # In days, must be strictly greater than 1
+    restart: always
+    
+    
+  connector-restore-files:
+    image: opencti/connector-restore-files:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR} # Local OpenCTI URL
+      - OPENCTI_TOKEN=209f87c9-df07-4356-a881-73fbc13fef3c # Local OpenCTI token
+      - CONNECTOR_ID=76fc4d17-1e63-41f6-bcf8-5ccfc1d8fbb6
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=RestoreFiles
+      - CONNECTOR_SCOPE=restore
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - BACKUP_PROTOCOL=local # Protocol for file copy (only `local` is supported for now).
+      - BACKUP_PATH=/tmp # Path to be used to copy the data, can be relative or absolute.
+    restart: always
+    
+    
+  connector-riskiq:
+    image: opencti/connector-riskiq:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=8c69b0f2-cc86-4dc4-a3f2-3dffe5c5bce3
+      - CONNECTOR_ID=093307a8-d560-4e7b-a015-faf7c6e43462
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_NAME=RISKIQ
+      - CONNECTOR_SCOPE=riskiq
+      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_LOG_LEVEL=info
+      - RISKIQ_BASE_URL=https://api.riskiq.net/pt/v2
+      - RISKIQ_USER=unisanniocs@gmail.com
+      - RISKIQ_PASSWORD=UNICS2021
+      - RISKIQ_INTERVAL_SEC=86400
+    restart: always
+    
+    
+  # connector-sekoia:
+    # image: opencti/connector-sekoia:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=ChangeMe
+      # - CONNECTOR_ID=ChangeMe
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=SEKOIA.IO
+      # - CONNECTOR_SCOPE=identity,attack-pattern,course-of-action,intrusion-set,malware,tool,report,location,vulnerability,indicator
+      # - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=true
+      # - CONNECTOR_LOG_LEVEL=info
+      # - SEKOIA_API_KEY=ChangeMe
+  # connector-taxii2:
+    # image: opencti/connector-taxii2:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=CHANGME
+      # - CONNECTOR_ID=CHANGEME
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=TAXII2
+      # - CONNECTOR_SCOPE=ipv4-addr,ipv6-addr,vulnerability,domain,url,file-sha256,file-md5,file-sha1
+      # - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=true
+      # - CONNECTOR_LOG_LEVEL=info
+      # - TAXII2_DISCOVERY_URL=CHANGEME #required
+      # - TAXII2_USERNAME=CHANGEME #required
+      # - TAXII2_PASSWORD=CHANGEME
+      # - TAXII2_V21=False #Is TAXII v2.1
+      # - TAXII2_COLLECTIONS=*.* # required
+      # - TAXII2_INITIAL_HISTORY= 24 # in hours
+      # - TAXII2_INTERVAL=100 #required, in hours
+      # - VERIFY_SSL=true
+    # restart: always
+  # connector-thehive:
+    # image: opencti/connector-thehive:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=ChangeMe
+      # - CONNECTOR_ID=ChangeMe
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=TheHive
+      # - CONNECTOR_SCOPE=thehive
+      # - CONNECTOR_CONFIDENCE_LEVEL=80 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=true
+      # - CONNECTOR_LOG_LEVEL=info
+      # - THEHIVE_URL=https://thehive.changeme.com
+      # - THEHIVE_API_KEY=ChangeMe
+      # - THEHIVE_CHECK_SSL=true
+      # - THEHIVE_ORGANIZATION_NAME=MyCompany
+      # - THEHIVE_IMPORT_FROM_DATE=2021-01-01T00:00:00 # Optional
+    # restart: always
+    
+    
+  # connector-threatmatch:
+    # image: opencti/connector-threatmatch:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=0bc4b3f0-83c4-403c-8aad-36df9018c7f2
+      # - CONNECTOR_ID=
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=ThreatMatch
+      # - CONNECTOR_SCOPE=threatmatch
+      # - CONNECTOR_CONFIDENCE_LEVEL=75 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=false
+      # - CONNECTOR_LOG_LEVEL=info
+      # - THREATMATCH_URL=https://eu.threatmatch.com
+      # - THREATMATCH_CLIENT_ID=ChangeMe
+      # - THREATMATCH_CLIENT_SECRET=ChangeMe
+      # - THREATMATCH_INTERVAL=5 # In minutes
+      # - "THREATMATCH_IMPORT_FROM_DATE=2010-01-01 00:00"
+      # - THREATMATCH_IMPORT_PROFILES=true # Import profiles
+      # - THREATMATCH_IMPORT_ALERTS=true # Import alerts
+      # - THREATMATCH_IMPORT_REPORTS=true # Import reports
+    # restart: always
+    
+    
+  connector-urlhaus:
+    image: opencti/connector-urlhaus:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=4a4fa569-9cb5-4e6f-8678-0e0ccb032750
+      - CONNECTOR_ID=b681e1be-5d67-4af0-bb03-84aa1eec3d3c
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - "CONNECTOR_NAME=Abuse.ch URLhaus"
+      - CONNECTOR_SCOPE=urlhaus
+      - CONNECTOR_CONFIDENCE_LEVEL=40 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_LOG_LEVEL=info
+      - URLHAUS_CSV_URL=https://urlhaus.abuse.ch/downloads/csv_recent/
+      - URLHAUS_IMPORT_OFFLINE=true
+      - URLHAUS_CREATE_INDICATORS=true
+      - URLHAUS_INTERVAL=3 # In days, must be strictly greater than 1
+    restart: always
+    
+    
+  # connector-valhalla:
+    # image: opencti/connector-valhalla:latest
+    # environment:
+      # - OPENCTI_URL=${IP_ADDR}
+      # - OPENCTI_TOKEN=ChangeMe
+      # - CONNECTOR_ID=ChangeMe
+      # - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      # - CONNECTOR_NAME=Valhalla
+      # - CONNECTOR_SCOPE=valhalla
+      # - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
+      # - CONNECTOR_UPDATE_EXISTING_DATA=false
+      # - CONNECTOR_LOG_LEVEL=info
+      # - VALHALLA_API_KEY= # Empty key only fetches public/demo information
+      # - VALHALLA_INTERVAL_SEC=86400 # Run once every day
+    # restart: always
+    
+  connector-virustotal-livehunt-notifications:
+    image: opencti/connector-virustotal-livehunt-notifications:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=8b49ee11-d556-4c72-91bb-e5332be9b553
+      - CONNECTOR_ID=29073ca5-9ee3-4f77-b112-489a801eca51
+      #- CONNECTOR_ID=Virustotal_Livehunt_Notifications
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - "CONNECTOR_NAME=Virustotal Livehunt Notifications"
+      - CONNECTOR_CONFIDENCE_LEVEL=50 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_LOG_LEVEL=info
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_API_KEY=9bc9f085af7bbea3c85cdeee7b3ed27d1b5e72510c34568317d0f55ed215a6ce # Private API Key
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_COOLDOWN_SECONDS=300 # Time to wait in seconds between subsequent requests
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_RULENAME_COLOR=#0059f7 # Color to use for Yara rule name labels
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_LABELS_COLOR=#54483b # Color to use for all other labels
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_EXTENSIONS=exe,dll # (Optional) Comma separated filter to only download files matching these extensions
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_MIN_FILE_SIZE=1000 # (Optional) Don't download files smaller than this many bytes
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_MAX_FILE_SIZE=52428800 # (Optional) Don't download files larger than this many bytes
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_MAX_AGE=1 # (Optional) Don't download files older than this many days (first seen in VT)
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_MIN_POSITIVES=5 # (Optional) Don't download files with less than this many vendors marking malicious
+      - VIRUSTOTAL_LIVEHUNT_NOTIFICATIONS_LABELS=livehunt # (Optional) Comma separated labels to apply for uploaded files
+    restart: always
+    
+    
+  connector-vxvault:
+    image: opencti/connector-vxvault:latest
+    environment:
+      - OPENCTI_URL=${IP_ADDR}
+      - OPENCTI_TOKEN=3f3668c4-05ab-4601-9532-535c35338e6f
+      - CONNECTOR_ID=6e637a65-1f13-41c1-ba46-afcecd59a2e3
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - "CONNECTOR_NAME=VX Vault URL list"
+      - CONNECTOR_SCOPE=vxvault
+      - CONNECTOR_CONFIDENCE_LEVEL=40 # From 0 (Unknown) to 100 (Fully trusted)
+      - CONNECTOR_UPDATE_EXISTING_DATA=true
+      - CONNECTOR_LOG_LEVEL=info
+      - VXVAULT_URL=http://vxvault.net/URL_List.php
+      - VXVAULT_CREATE_INDICATORS=true
+      - VXVAULT_INTERVAL=3 # In days, must be strictly greater than 1
+    restart: always
+
+
+
+
+
+# secrets:
+  # kaspersky_certificate:
+    # file: /path/to/certificate.pem  # Change to correct path.
