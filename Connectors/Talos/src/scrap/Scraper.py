@@ -48,7 +48,7 @@ class Scraper:
     def zeroDaySingle(self, line):
         try:
             scraper = cloudscraper.create_scraper()
-            boundle_data = []
+            #boundle_data = []
             req = scraper.get("https://talosintelligence.com/vulnerability_reports/"+line.rstrip("\n"))
             if("200" in str(req)):
                 page = req.text
@@ -57,14 +57,14 @@ class Scraper:
                     date = soup.find("div", {"id":"page_wrapper"}).find("h5", {"class":"date_time"}).text
                     date_time_obj = datetime.strptime(date, '%B %d, %Y')
                     d = {"id":line.rstrip("\n") , "date":str(date_time_obj)}
-                    boundle_data.append(d)
-                    return json.dumps(boundle_data)
+                    #boundle_data.append(d)
+                    return json.dumps(d)
         except(requests.ConnectionError)as exception:
             print("Connection Error")
         except(requests.Timeout)as exception:
             print("Connection Timeout")
 
-    
+
 
     def getDiscloseds(self):
         print("Disclosed txt init")
@@ -105,7 +105,7 @@ class Scraper:
         print("Disclosed json init")
         try:
             scraper = cloudscraper.create_scraper()
-            boundle_data = []
+            #boundle_data = []
             line = line.rstrip("\n")
             strs = line.split(",")
             req = scraper.get(strs[1])
@@ -187,9 +187,9 @@ class Scraper:
                         "credit" : credit,
                         "report_url" : strs[1]
                     }
-                    
-                    boundle_data.append(data)
-                    return json.dumps(boundle_data)
+
+                    #boundle_data.append(data)
+                    return json.dumps(data)
 
         except(requests.ConnectionError)as exception:
             print("Connection Error")
