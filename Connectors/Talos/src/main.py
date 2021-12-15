@@ -72,7 +72,8 @@ class TalosConnector:
             self.helper.log_info("DISCLOSEDS BUNDLE CALL")
             hand = scraper.disclosedsFileHandler()
             for line in hand:
-                data = scraper.disclosedsSingle(line)
+                datas = scraper.disclosedsSingle(line)
+                data = json.load(datas)
                 pubDate = datetime.strptime(data["date"], '%y-%m-%d')
                 productUrl = ExternalReference(
                     url = data["product_urls"],
