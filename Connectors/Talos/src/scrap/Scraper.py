@@ -58,8 +58,7 @@ class Scraper:
                     date_time_obj = datetime.strptime(date, '%B %d, %Y')
                     d = {"id":line.rstrip("\n") , "date":str(date_time_obj)}
                     #boundle_data.append(d)
-                    #return json.dumps(d)
-                    return d
+                    return json.dumps(d)
         except(requests.ConnectionError)as exception:
             print("Connection Error")
         except(requests.Timeout)as exception:
