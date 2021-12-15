@@ -48,8 +48,7 @@ class TalosConnector:
             for line in hand:
                 self.helper.log_info(line)
                 js = scraper.zeroDaySingle(line)
-                j = json.load(js)
-                self.helper.log_info(js)
+                j = json.loads(js)
                 created = datetime.strptime(j["date"], '%y-%m-%d')
                 vulnerability = Vulnerability(
                     id = OpenCTIStix2Utils.generate_random_stix_id("vulnerability"),
@@ -74,7 +73,7 @@ class TalosConnector:
             hand = scraper.disclosedsFileHandler()
             for line in hand:
                 datas = scraper.disclosedsSingle(line)
-                data = json.load(datas)
+                data = json.loads(datas)
                 pubDate = datetime.strptime(data["date"], '%y-%m-%d')
                 productUrl = ExternalReference(
                     url = data["product_urls"],
