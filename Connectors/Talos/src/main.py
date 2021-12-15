@@ -39,7 +39,7 @@ class TalosConnector:
             identity = Identity(
                 id=OpenCTIStix2Utils.generate_random_stix_id("identity"),
                 name="TalosIntelligence"
-            )    
+            )
 
             #create bundle for zero day vulnerablity
             self.helper.log_info("ZERO BUNDLE CALL")
@@ -47,7 +47,8 @@ class TalosConnector:
             self.helper.log_info(hand)
             for line in hand:
                 self.helper.log_info(line)
-                j = scraper.zeroDaySingle(line)
+                js = scraper.zeroDaySingle(line)
+                j = json.load(j)
                 created = datetime.strptime(j["date"], '%y-%m-%d')
                 vulnerability = Vulnerability(
                     id = OpenCTIStix2Utils.generate_random_stix_id("vulnerability"),
@@ -65,7 +66,7 @@ class TalosConnector:
                     entities_types = self.helper.connect_scope,
                     work_id = work_id
                 ).serialize()
-                self.helper.send_stix2_bundle(bundle)     
+                self.helper.send_stix2_bundle(bundle)
             self.helper.log_info("ZERO BUNDLE CALLED")
             #create bundle for discloseds vulnerability
             self.helper.log_info("DISCLOSEDS BUNDLE CALL")
@@ -133,7 +134,7 @@ class TalosConnector:
                 ).serialize()
                 self.helper.send_stix2_bundle(bundle)
             self.helper.log_info("DISCLOSEDS BUNDLE CALLED")
-                    
+
         except Exception as e:
             self.helper.log_info(e)
             self.helper.log_info(traceback.format_exc())
