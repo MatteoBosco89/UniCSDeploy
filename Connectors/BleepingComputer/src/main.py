@@ -1,5 +1,6 @@
 import os
 import yaml
+import traceback
 import time
 from pycti import OpenCTIConnectorHelper, get_config_variable, OpenCTIStix2Utils
 from stix2 import Bundle, Malware, Report, Note, Relationship, Identity, ExternalReference
@@ -9,7 +10,7 @@ import cloudscraper
 import xmltodict
 
 
-class TemplateConnector:
+class BleepingConnector:
     def __init__(self):
         # Instantiate the connector helper from config
         config_file_path = os.path.dirname(os.path.abspath(__file__)) + "/config.yml"
@@ -159,9 +160,10 @@ class TemplateConnector:
 
 if __name__ == "__main__":
     try:
-        connector = TemplateConnector()
+        connector = BleepingConnector()
         connector.run()
     except Exception as e:
         print(e)
+        print(traceback.format_exc())
         time.sleep(10)
         exit(0)

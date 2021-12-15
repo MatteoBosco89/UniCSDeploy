@@ -1,16 +1,17 @@
 import os
 import yaml
 import time
+import traceback
 from pycti import OpenCTIConnectorHelper, get_config_variable, OpenCTIStix2Utils
 from stix2 import Bundle, Report, Vulnerability, Relationship, Identity, Note, ExternalReference
 from datetime import datetime
-from email.utils import parsedate_tz, mktime_tz
-import cloudscraper
-import xmltodict
-from Scraper import Scraper
+from scrap.Scraper import Scraper
 import json
 
-class TemplateConnector:
+class TalosConnector:
+
+    busy = False
+
     def __init__(self):
         # Instantiate the connector helper from config
         config_file_path = os.path.dirname(os.path.abspath(__file__)) + "/config.yml"
@@ -19,7 +20,7 @@ class TemplateConnector:
             if os.path.isfile(config_file_path)
             else {}
         )
-        self.helper = OpenCTIConnectorHelper(config)
+        self.helper = OpenCTIConnectorHelper(config) #errore
         self.talos_interval = get_config_variable(
             "TALOS_INTERVAL", ["talos", "interval"], config, True
         )
@@ -27,32 +28,33 @@ class TemplateConnector:
     def get_interval(self) -> int:
         return int(self.talos_interval) / 60 / 60 * 24
 
+
     def create_bundle(self, work_id):
-        scraper = Scraper()
-        scraper.scraping()
-        identity = Identity(
-            id=OpenCTIStix2Utils.generate_random_stix_id("identity"),
-            name="TalosIntelligence"
-        )
-        if(not os.path.isfile("Scraper/zerosData.json")):
-            return 0
-        zeroData = open("Scraper/zerosData.json", 'r')
-        zerosJson = json.load(zeroData)
+        self.helper.log_info("CREATE BUNDLE CALLED")
+        try:
+            scraper = Scraper()
+            self.helper.log_info("SCRAPER CALLED")
+            scraper.scraping()
+            self.helper.log_info("SCRAPING FINISHED AND FILES CREATED")
+            identity = Identity(
+                id=OpenCTIStix2Utils.generate_random_stix_id("identity"),
+                name="TalosIntelligence"
+            )    
 
-        if(not os.path.isfile("Scraper/diclosedsData.json")):
-            return 0
-        disclosedData = open("Scraper/diclosedsData.json", 'r')
-        disclosedsJson = json.load(disclosedData)
-
-        #create bundle for zero day vulnerablity
-        if(zerosJson):
-            for data in zerosJson:
-                created = datetime.strptime(data["date"], '%y-%m-%d')
+            #create bundle for zero day vulnerablity
+            self.helper.log_info("ZERO BUNDLE CALL")
+            hand = scraper.zeroDayFileHandler()
+            self.helper.log_info(hand)
+            for line in hand:
+                self.helper.log_info(line)
+                j = scraper.zeroDaySingle(line)
+                created = datetime.strptime(j["date"], '%y-%m-%d')
                 vulnerability = Vulnerability(
                     id = OpenCTIStix2Utils.generate_random_stix_id("vulnerability"),
-                    name = data["id"],
+                    name = j["id"],
                     created = created,
-                    description = "zero day vulnerability"
+                    description = "zero day vulnerability",
+                    labels=["ZeroDay", "Vulnerability"]
                 )
                 bundle = Bundle(
                     objects = [
@@ -63,11 +65,13 @@ class TemplateConnector:
                     entities_types = self.helper.connect_scope,
                     work_id = work_id
                 ).serialize()
-                self.helper.send_stix2_bundle(bundle)
-
-        #create bundle for discloseds vulnerability
-        if(disclosedsJson):
-            for data in disclosedsJson:
+                self.helper.send_stix2_bundle(bundle)     
+            self.helper.log_info("ZERO BUNDLE CALLED")
+            #create bundle for discloseds vulnerability
+            self.helper.log_info("DISCLOSEDS BUNDLE CALL")
+            hand = scraper.disclosedsFileHandler()
+            for line in hand:
+                data = scraper.disclosedsSingle(line)
                 pubDate = datetime.strptime(data["date"], '%y-%m-%d')
                 productUrl = ExternalReference(
                     url = data["product_urls"],
@@ -105,6 +109,7 @@ class TemplateConnector:
                     created_by_ref = identity.id,
                     name = data["id"],
                     published = pubDate,
+                    labels=["vulnerability"],
                     object_refs=[vulnerability.id, note.id]
                 )
                 relationship = Relationship(
@@ -127,6 +132,11 @@ class TemplateConnector:
                     work_id=work_id
                 ).serialize()
                 self.helper.send_stix2_bundle(bundle)
+            self.helper.log_info("DISCLOSEDS BUNDLE CALLED")
+                    
+        except Exception as e:
+            self.helper.log_info(e)
+            self.helper.log_info(traceback.format_exc())
 
     def process_data(self):
         try:
@@ -178,21 +188,18 @@ class TemplateConnector:
         except Exception as e:
             self.helper.log_error(str(e))
 
-
     def run(self):
         self.helper.log_info("Fetching Talos intelligence data...")
         while True:
             self.process_data()
-            time.sleep(60)
+            time.sleep(600)
 
-
-
-
-if "__name__" == "__main__":
+if __name__ == "__main__":
     try:
-        connector = TemplateConnector()
+        connector = TalosConnector() #errore
         connector.run()
     except Exception as e:
         print(e)
+        print(traceback.format_exc())
         time.sleep(10)
         exit(0)
