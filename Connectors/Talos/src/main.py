@@ -46,6 +46,8 @@ class TalosConnector:
             hand = scraper.zeroDayFileHandler()
             self.helper.log_info(hand)
             for line in hand:
+                if(not line):
+                    self.helper.log_info("line is empty")
                 self.helper.log_info(line)
                 js = scraper.zeroDaySingle(line)
                 j = json.load(js)
