@@ -61,8 +61,10 @@ class Scraper:
                     return json.dumps(d)
         except(requests.ConnectionError)as exception:
             print("Connection Error")
+            return None
         except(requests.Timeout)as exception:
             print("Connection Timeout")
+            return None
 
 
 
@@ -138,9 +140,9 @@ class Scraper:
                         if(product_urls):
                             product_urls = product_urls.text
                         else:
-                            product_urls = "null"
+                            product_urls = "http://null"
                     else:
-                        product_urls = "null"
+                        product_urls = "http://null"
 
                     cvss_score = data_div.find("h3", {"id":"cvssv3-score"})
                     if(cvss_score):
@@ -193,8 +195,10 @@ class Scraper:
 
         except(requests.ConnectionError)as exception:
             print("Connection Error")
+            return None
         except(requests.Timeout)as exception:
             print("Connection Timeout")
+            return None
         print("Disclosed json finished")
 
     #This method scrape the reputation ip

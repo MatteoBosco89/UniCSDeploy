@@ -7,6 +7,7 @@ from stix2 import Bundle, Report, Vulnerability, Relationship, Identity, Note, E
 from datetime import datetime
 from scrap.Scraper import Scraper
 import json
+from email.utils import parsedate_tz, mktime_tz
 
 class TalosConnector:
 
@@ -48,94 +49,102 @@ class TalosConnector:
             for line in hand:
                 self.helper.log_info(line)
                 js = scraper.zeroDaySingle(line)
-                j = json.loads(js)
-                created = datetime.strptime(j["date"], '%y-%m-%d')
-                vulnerability = Vulnerability(
-                    id = OpenCTIStix2Utils.generate_random_stix_id("vulnerability"),
-                    name = j["id"],
-                    created = created,
-                    description = "zero day vulnerability",
-                    labels=["ZeroDay", "Vulnerability"]
-                )
-                bundle = Bundle(
-                    objects = [
-                        identity,
-                        vulnerability
-                    ],
-                    allow_custom = True,
-                    entities_types = self.helper.connect_scope,
-                    work_id = work_id
-                ).serialize()
-                self.helper.send_stix2_bundle(bundle)
+                if(js is None):
+                    self.helper.log_info("Got None on line " + line)
+                else:
+                    j = json.loads(js)
+                    timestamp = time.mktime(datetime.strptime(j["date"], "%Y-%m-%d %H:%M:%S").timetuple())
+                    created = datetime.fromtimestamp(timestamp)
+                    vulnerability = Vulnerability(
+                        id = OpenCTIStix2Utils.generate_random_stix_id("vulnerability"),
+                        name = j["id"],
+                        created = created,
+                        description = "zero day vulnerability",
+                        labels=["ZeroDay", "Vulnerability"]
+                    )
+                    bundle = Bundle(
+                        objects = [
+                            identity,
+                            vulnerability
+                        ],
+                        allow_custom = True,
+                        entities_types = self.helper.connect_scope,
+                        work_id = work_id
+                    ).serialize()
+                    self.helper.send_stix2_bundle(bundle)
             self.helper.log_info("ZERO BUNDLE CALLED")
             #create bundle for discloseds vulnerability
             self.helper.log_info("DISCLOSEDS BUNDLE CALL")
             hand = scraper.disclosedsFileHandler()
             for line in hand:
                 datas = scraper.disclosedsSingle(line)
-                data = json.loads(datas)
-                pubDate = datetime.strptime(data["date"], '%y-%m-%d')
-                productUrl = ExternalReference(
-                    url = data["product_urls"],
-                    source_name = data["product_urls"].split('/')[2],
-                    description = "Product urls"
-                )
-                talosReport = ExternalReference(
-                    url = data["report_url"],
-                    description = "Talos Intelligence report",
-                    source_name = "talosintelligence.com"
-                )
-                vulnerability = Vulnerability(
-                    id = OpenCTIStix2Utils.generate_random_stix_id("vulnerability"),
-                    name = data["cve_number"],
-                    description = data["short_description"]+"\n"+data["summary"],
-                    labels = [
-                        data["id"],
-                        data["cvss_score"],
-                        data["cwe"]
-                    ],
-                    external_references = [
-                        productUrl,
-                        talosReport
-                    ]
-                )
-                note = Note(
-                    id = OpenCTIStix2Utils.generate_random_stix_id("note"),
-                    created = pubDate,
-                    content = data["timeline"],
-                    abstract = "Timeline"
-                )
-                report = Report(
-                    id = OpenCTIStix2Utils.generate_random_stix_id("report"),
-                    report_types = ["vulnerablity"],
-                    created_by_ref = identity.id,
-                    name = data["id"],
-                    published = pubDate,
-                    labels=["vulnerability"],
-                    object_refs=[vulnerability.id, note.id]
-                )
-                relationship = Relationship(
-                    id = OpenCTIStix2Utils.generate_random_stix_id("relationship"),
-                    relationship_type = "related-to",
-                    source_ref = vulnerability.id,
-                    target_ref = report.id,
-                    confidence = self.helper.connect_confidence_level
-                )
-                bundle = Bundle(
-                    objects=[
-                        identity,
-                        vulnerability,
-                        note,
-                        report,
-                        relationship
-                    ],
-                    allow_custom=True,
-                    entities_types=self.helper.connect_scope,
-                    work_id=work_id
-                ).serialize()
-                self.helper.send_stix2_bundle(bundle)
-            self.helper.log_info("DISCLOSEDS BUNDLE CALLED")
-
+                if(datas is None):
+                    self.helper.log_info("Got None on line" + line)
+                else:
+                    data = json.loads(datas)
+                    timestamp = time.mktime(datetime.strptime(data["date"], "%Y-%m-%d %H:%M:%S").timetuple())
+                    pubDate = datetime.fromtimestamp(timestamp)
+                    productUrl = ExternalReference(
+                        url = data["product_urls"],
+                        source_name = data["product_urls"],
+                        description = "Product urls"
+                    )
+                    talosReport = ExternalReference(
+                        url = data["report_url"],
+                        description = "Talos Intelligence report",
+                        source_name = "talosintelligence.com"
+                    )
+                    vulnerability = Vulnerability(
+                        id = OpenCTIStix2Utils.generate_random_stix_id("vulnerability"),
+                        name = data["cve_number"],
+                        description = data["short_description"]+"\n"+data["summary"],
+                        labels = [
+                            data["id"],
+                            data["cvss_score"],
+                            data["cwe"]
+                        ],
+                        external_references = [
+                            productUrl,
+                            talosReport
+                        ]
+                    )
+                    note = Note(
+                        id = OpenCTIStix2Utils.generate_random_stix_id("note"),
+                        created = pubDate,
+                        content = data["timeline"],
+                        abstract = "Timeline",
+                        object_refs=[vulnerability.id]
+                    )
+                    report = Report(
+                        id = OpenCTIStix2Utils.generate_random_stix_id("report"),
+                        report_types = ["vulnerablity"],
+                        created_by_ref = identity.id,
+                        name = data["id"],
+                        published = pubDate,
+                        labels=["vulnerability"],
+                        object_refs=[vulnerability.id, note.id]
+                    )
+                    relationship = Relationship(
+                        id = OpenCTIStix2Utils.generate_random_stix_id("relationship"),
+                        relationship_type = "related-to",
+                        source_ref = vulnerability.id,
+                        target_ref = report.id,
+                        confidence = self.helper.connect_confidence_level
+                    )
+                    bundle = Bundle(
+                        objects=[
+                            identity,
+                            vulnerability,
+                            note,
+                            report,
+                            relationship
+                        ],
+                        allow_custom=True,
+                        entities_types=self.helper.connect_scope,
+                        work_id=work_id
+                    ).serialize()
+                    self.helper.send_stix2_bundle(bundle)
+                self.helper.log_info("DISCLOSEDS BUNDLE CALLED")
         except Exception as e:
             self.helper.log_info(e)
             self.helper.log_info(traceback.format_exc())
