@@ -62,6 +62,7 @@ class SecurityAffairs:
                 report = Report(
                     id = OpenCTIStix2Utils.generate_random_stix_id("report"),
                     created_by_ref = identity.id,
+                    report_types = ["report"],
                     name = data["title"],
                     external_references = [
                         security_site,
