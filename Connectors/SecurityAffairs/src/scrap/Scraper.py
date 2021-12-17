@@ -45,4 +45,3 @@ class Scraper:
             return articles_list
         else:
             return None
-        

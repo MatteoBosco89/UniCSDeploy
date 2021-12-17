@@ -59,7 +59,7 @@ class SecurityAffairs:
                     source_name = "Securityaffairs.co"
                 )
                 attack_pattern = AttackPattern(
-                    id=OpenCTIStix2Utils.generate_random_stix_id("report"),
+                    id=OpenCTIStix2Utils.generate_random_stix_id("attack-pattern"),
                     name = d["title"],
                     description = d["description"]
                 )
