@@ -28,16 +28,16 @@ class SecurityAffairs:
     def create_bundle(self, work_id):
         scraper = Scraper()
         data = scraper.getAllArticles()
-        identity = Identity(
-            id=OpenCTIStix2Utils.generate_random_stix_id("identity"),
-            name="SecurityAffairs",
-            external_references=[ext_re_blee]
-        )
         security_site = ExternalReference(
             #https://securityaffairs.co/
             url = "https://securityaffairs.co/",
             description = "Cyber Security Blog of Engineer Pierluigi Paganini",
             source_name = "Securityaffairs.co"
+        )
+        identity = Identity(
+            id=OpenCTIStix2Utils.generate_random_stix_id("identity"),
+            name="SecurityAffairs",
+            external_references=[security_site]
         )
         security_linkedin = ExternalReference(
             #http://www.linkedin.com/pub/pierluigi-paganini/b/742/559
@@ -51,19 +51,21 @@ class SecurityAffairs:
             description = "Twitter profile of SecurityAffairs",
             source_name = "Twitter.com"
         )
-        if(data):
+        if(data is not None):
             for d in data:
                 link = ExternalReference(
                     #https://twitter.com/securityaffairs
-                    url = data["link"],
+                    url = d["link"],
                     description = "Link to the SecurityAffairs Articles",
                     source_name = "Securityaffairs.co"
                 )
                 report = Report(
                     id = OpenCTIStix2Utils.generate_random_stix_id("report"),
-                    created_by_ref = identity.id,
+                    object_refs=[identity.id],
                     report_types = ["report"],
-                    name = data["title"],
+                    description = d["description"],
+                    name = d["title"],
+                    published = datetime.now(),
                     external_references = [
                         security_site,
                         security_linkedin,
@@ -81,6 +83,8 @@ class SecurityAffairs:
                     work_id=work_id
                 ).serialize()
                 self.helper.send_stix2_bundle(bundle)
+        else:
+            self.helper.log_info("Got nothing from page :(")
 
     def process_data(self):
         try:

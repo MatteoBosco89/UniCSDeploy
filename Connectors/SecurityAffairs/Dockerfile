@@ -1,7 +1,7 @@
 FROM python:3.9-alpine
 
 # Copy the connector
-COPY src /opt/opencti-connector-bleeping-computer
+COPY src /opt/opencti-connector-security-affairs
 
 # Install Python modules
 # hadolint ignore=DL3003
