@@ -3,7 +3,7 @@ import yaml
 import traceback
 import time
 from pycti import OpenCTIConnectorHelper, get_config_variable, OpenCTIStix2Utils
-from stix2 import Bundle, Report, Note, Identity, ExternalReference
+from stix2 import Bundle, Report, AttackPattern, Identity, ExternalReference
 from datetime import datetime
 from scrap.Scraper import Scraper
 
@@ -54,18 +54,24 @@ class SecurityAffairs:
         if(data is not None):
             for d in data:
                 link = ExternalReference(
-                    #https://twitter.com/securityaffairs
                     url = d["link"],
                     description = "Link to the SecurityAffairs Articles",
                     source_name = "Securityaffairs.co"
                 )
+                attack_pattern = AttackPattern(
+                    id=OpenCTIStix2Utils.generate_random_stix_id("report"),
+                    name = d["title"],
+                    description = d["description"]
+                )
                 report = Report(
                     id = OpenCTIStix2Utils.generate_random_stix_id("report"),
-                    object_refs=[identity.id],
-                    report_types = ["report"],
+                    report_types = ["note"],
                     description = d["description"],
                     name = d["title"],
-                    published = datetime.now(),
+                    labels = d["labels"],
+                    authors = d["creator"],
+                    published = time.mktime(d["pubdate"].timetuple()),
+                    object_refs = [identity.id, attack_pattern.id],
                     external_references = [
                         security_site,
                         security_linkedin,
@@ -76,6 +82,7 @@ class SecurityAffairs:
                 bundle = Bundle(
                     objects=[
                         identity,
+                        attack_pattern,
                         report
                     ],
                     allow_custom=True,
