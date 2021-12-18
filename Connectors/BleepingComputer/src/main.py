@@ -76,21 +76,12 @@ class BleepingConnector:
                 labels=["malware"],
                 external_references=[ext_re]
             )
-            relrr = Relationship(
-                id=OpenCTIStix2Utils.generate_random_stix_id("relationship"),
-                relationship_type="related-to",
-                source_ref=malware.id,
-                target_ref=report.id,
-                confidence=self.helper.connect_confidence_level,
-                external_references=[ext_re]
-            )
             bundle = Bundle(
                 objects=[
                     identity,
                     malware,
                     report,
-                    note,
-                    relrr
+                    note
                 ],
                 allow_custom=True,
                 entities_types=self.helper.connect_scope,

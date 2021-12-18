@@ -2,6 +2,7 @@ import cloudscraper
 from bs4 import BeautifulSoup
 import lxml
 from datetime import datetime
+from email.utils import parsedate_tz, mktime_tz
 
 class Scraper:
 
@@ -26,7 +27,9 @@ class Scraper:
                 description = description.replace("]]>", " ")
                 pubdate = art.find("pubdate").text.replace("+0000", "")
                 #Fri, 17 Dec 2021 07:38:21
-                pubdate = datetime.strptime(pubdate, "%a, %d %b %Y %H:%M:%S ")
+                timestamp = mktime_tz(parsedate_tz(pubdate))
+                pubdate = datetime.utcfromtimestamp(timestamp)
+                #pubdate = datetime.strptime(pubdate, "%a, %d %b %Y %H:%M:%S ")
                 categories = art.findAll("category")
                 cats = []
                 for c in categories:

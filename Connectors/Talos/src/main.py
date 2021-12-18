@@ -113,6 +113,7 @@ class TalosConnector:
                         created = pubDate,
                         content = data["timeline"],
                         abstract = "Timeline",
+                        labels=["Talos"],
                         object_refs=[vulnerability.id]
                     )
                     report = Report(

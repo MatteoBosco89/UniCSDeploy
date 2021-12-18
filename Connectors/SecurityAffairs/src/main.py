@@ -6,6 +6,7 @@ from pycti import OpenCTIConnectorHelper, get_config_variable, OpenCTIStix2Utils
 from stix2 import Bundle, Report, AttackPattern, Identity, ExternalReference
 from datetime import datetime
 from scrap.Scraper import Scraper
+from email.utils import parsedate_tz, mktime_tz
 
 
 class SecurityAffairs:
@@ -26,72 +27,76 @@ class SecurityAffairs:
         return int(self.securityaffairs_interval) * 60 * 60 * 24
 
     def create_bundle(self, work_id):
-        scraper = Scraper()
-        data = scraper.getAllArticles()
-        security_site = ExternalReference(
-            #https://securityaffairs.co/
-            url = "https://securityaffairs.co/",
-            description = "Cyber Security Blog of Engineer Pierluigi Paganini",
-            source_name = "Securityaffairs.co"
-        )
-        identity = Identity(
-            id=OpenCTIStix2Utils.generate_random_stix_id("identity"),
-            name="SecurityAffairs",
-            external_references=[security_site]
-        )
-        security_linkedin = ExternalReference(
-            #http://www.linkedin.com/pub/pierluigi-paganini/b/742/559
-            url = "http://www.linkedin.com/pub/pierluigi-paganini/b/742/559",
-            description = "Linkedin profile of Engineer Pierluigi Paganini",
-            source_name = "Linkedin.com"
-        )
-        security_twitter = ExternalReference(
-            #https://twitter.com/securityaffairs
-            url = "https://twitter.com/securityaffairs",
-            description = "Twitter profile of SecurityAffairs",
-            source_name = "Twitter.com"
-        )
-        if(data is not None):
-            for d in data:
-                link = ExternalReference(
-                    url = d["link"],
-                    description = "Link to the SecurityAffairs Articles",
-                    source_name = "Securityaffairs.co"
-                )
-                attack_pattern = AttackPattern(
-                    id=OpenCTIStix2Utils.generate_random_stix_id("attack-pattern"),
-                    name = d["title"],
-                    description = d["description"]
-                )
-                report = Report(
-                    id = OpenCTIStix2Utils.generate_random_stix_id("report"),
-                    report_types = ["note"],
-                    description = d["description"],
-                    name = d["title"],
-                    labels = d["labels"],
-                    authors = d["creator"],
-                    published = time.mktime(d["pubdate"].timetuple()),
-                    object_refs = [identity.id, attack_pattern.id],
-                    external_references = [
-                        security_site,
-                        security_linkedin,
-                        security_twitter,
-                        link
-                    ]
-                )
-                bundle = Bundle(
-                    objects=[
-                        identity,
-                        attack_pattern,
-                        report
-                    ],
-                    allow_custom=True,
-                    entities_types=self.helper.connect_scope,
-                    work_id=work_id
-                ).serialize()
-                self.helper.send_stix2_bundle(bundle)
-        else:
-            self.helper.log_info("Got nothing from page :(")
+        try:
+            scraper = Scraper()
+            data = scraper.getAllArticles()
+            security_site = ExternalReference(
+                #https://securityaffairs.co/
+                url = "https://securityaffairs.co/",
+                description = "Cyber Security Blog of Engineer Pierluigi Paganini",
+                source_name = "Securityaffairs.co"
+            )
+            identity = Identity(
+                id=OpenCTIStix2Utils.generate_random_stix_id("identity"),
+                name="SecurityAffairs",
+                external_references=[security_site]
+            )
+            security_linkedin = ExternalReference(
+                #http://www.linkedin.com/pub/pierluigi-paganini/b/742/559
+                url = "http://www.linkedin.com/pub/pierluigi-paganini/b/742/559",
+                description = "Linkedin profile of Engineer Pierluigi Paganini",
+                source_name = "Linkedin.com"
+            )
+            security_twitter = ExternalReference(
+                #https://twitter.com/securityaffairs
+                url = "https://twitter.com/securityaffairs",
+                description = "Twitter profile of SecurityAffairs",
+                source_name = "Twitter.com"
+            )
+            if(data is not None):
+                for d in data:
+                    link = ExternalReference(
+                        url = d["link"],
+                        description = "Link to the SecurityAffairs Articles",
+                        source_name = "Securityaffairs.co"
+                    )
+                    attack_pattern = AttackPattern(
+                        id=OpenCTIStix2Utils.generate_random_stix_id("attack-pattern"),
+                        name = d["title"],
+                        description = d["description"]
+                    )
+                    report = Report(
+                        id = OpenCTIStix2Utils.generate_random_stix_id("report"),
+                        report_types = ["note"],
+                        description = d["description"],
+                        name = d["title"],
+                        labels = d["labels"],
+                        created_by_ref = identity.id,
+                        published = d["pubdate"],
+                        object_refs = [identity.id, attack_pattern.id],
+                        external_references = [
+                            security_site,
+                            security_linkedin,
+                            security_twitter,
+                            link
+                        ]
+                    )
+                    bundle = Bundle(
+                        objects=[
+                            identity,
+                            attack_pattern,
+                            report
+                        ],
+                        allow_custom=True,
+                        entities_types=self.helper.connect_scope,
+                        work_id=work_id
+                    ).serialize()
+                    self.helper.send_stix2_bundle(bundle)
+            else:
+                self.helper.log_info("Got nothing from page :(")
+        except Exception as e:
+            self.helper.log_info(e)
+            self.helper.log_info(traceback.format_exc())
 
     def process_data(self):
         try:
