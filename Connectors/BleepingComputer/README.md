@@ -1,13 +1,8 @@
-# OpenCTI Template Connector
+# OpenCTI BleepingComputer Connector
 
-<!-- 
-General description of the connector 
-* What it does
-* How it works
-* Special requirements
-* Use case description
-* ...
--->
+* The OpenCTI BleepingComputer Connector can be used to import knowledge from https://www.bleepingcomputer.com/ feeds. 
+
+  **Note**: Nothing is required but the working platform to use the connector
 
 ## Installation
 
@@ -15,30 +10,33 @@ General description of the connector
 
 - OpenCTI Platform >= 5.0.3
 
+- The best way to install the connector is by the Portainer dashboard, but furthermore, is installable with Docker Compose and runnable with Python. 
+
+  It must have access to the platform and RabbitMQ instance, through the OpenCTI Connector Token, obtainable through a New User creation. 
+
+### Installation Process
+
+- Standalone Python Process: provide the correct configuration in the `config.yml` file, install all the requirements in the `requirements.txt` file with `pip3 install -r requirements.txt -U` and start the process in detached mode using the `&` keyword `python3 main.py &`
+
+- Docker Compose Process: provide the correct configuration in the `docker-compose.yml` file and start the container using the command `docker-compose up` 
+
+- Portainer Process: provide the correct configuration inside the stack in the Portainer Dashboard and press the `Update the Stack` button
+
+  
+
 ### Configuration
 
-| Parameter                            | Docker envvar                       | Mandatory    | Description                                                                                                                                                |
-| ------------------------------------ | ----------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `opencti_url`                        | `OPENCTI_URL`                       | Yes          | The URL of the OpenCTI platform.                                                                                                                           |
-| `opencti_token`                      | `OPENCTI_TOKEN`                     | Yes          | The default admin token configured in the OpenCTI platform parameters file.                                                                                |
-| `connector_id`                       | `CONNECTOR_ID`                      | Yes          | A valid arbitrary `UUIDv4` that must be unique for this connector.                                                                                         |
-| `connector_type`                     | `CONNECTOR_TYPE`                    | Yes          | Must be `Template_Type` (this is the connector type).                                                                                                      |
-| `connector_name`                     | `CONNECTOR_NAME`                    | Yes          | Option `Template`                                                                                                                                          |
-| `connector_scope`                    | `CONNECTOR_SCOPE`                   | Yes          | Supported scope: Template Scope (MIME Type or Stix Object)                                                                                                 |
-| `connector_confidence_level`         | `CONNECTOR_CONFIDENCE_LEVEL`        | Yes          | The default confidence level for created sightings (a number between 1 and 4).                                                                             |
-| `connector_log_level`                | `CONNECTOR_LOG_LEVEL`               | Yes          | The log level for this connector, could be `debug`, `info`, `warn` or `error` (less verbose).                                                              |
-| `template_attribute`                 | `TEMPLATE_ATTRIBUTE`                | Yes          | Additional setting for the connector itself                                                                                                                |
+| Docker envvar                | Parameter                    | Default                                                      | Description                                                  |
+| ---------------------------- | ---------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `OPENCTI_URL`                | `opencti_url`                | `http://opencti:8080`                                        | The URL of the OpenCTI platform.                             |
+| `OPENCTI_TOKEN`              | `opencti_token`              | `changeMe`                                                   | The user token provided in the OpenCTI platform.             |
+| `CONNECTOR_ID`               | `connector_id`               | `changeMe`                                                   | A valid arbitrary `UUIDv4` that must be unique for this connector. |
+| `CONNECTOR_TYPE`             | `connector_type`             | `EXTERNAL_IMPORT`                                            | Must be `EXTERNAL_IMPORT` (this is the connector type).        |
+| `CONNECTOR_NAME`             | `connector_name`             | `BleepingComputer`                                           | Option `BleepingComputer`                                            |
+| `CONNECTOR_SCOPE`            | `connector_scope`            | `Bundle, Malware, Report, Note, Relationship, Identity, ExternalReference` | Supported scope: Template Scope (MIME Type or Stix Object)   |
+| `CONNECTOR_CONFIDENCE_LEVEL` | `connector_confidence_level` | `100`                                                        | The default confidence level for created sightings (a number between 0 and 100). |
+| `CONNECTOR_LOG_LEVEL`        | `connector_log_level`        | `info`                                                       | The log level for this connector, could be `debug`, `info`, `warn` or `error` (less verbose). |
+| `BLEEPING_INTERVAL`          | `bleeping_interval`          | `2`                                                          | Must be strictly greater than 1, indicates the frequency of update in days (default value is 2 days). |
 
-### Debugging ###
 
-<!-- Any additional information to help future users debug and report detailed issues concerning this connector --> 
-
-### Additional information
-
-<!-- 
-Any additional information about this connector 
-* What information is ingested/updated/changed
-* What should the user take into account when using this connector
-* ...
--->
 

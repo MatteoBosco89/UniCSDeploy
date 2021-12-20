@@ -4,8 +4,9 @@ opencti:
 
 connector:
   id: 'ChangeMe'
-  type: 'Template_Type'
-  name: 'Template'
-  scope: 'Template_Scope' # MIME type or SCO
+  type: 'EXTERNAL_IMPORT'
+  name: 'BleepingComputer'
+  scope: 'Bundle, Malware, Report, Note, Relationship, Identity, ExternalReference' # MIME type or SCO
   confidence_level: 100 # From 0 (Unknown) to 100 (Fully trusted)
   log_level: 'info'
+  bleeping_interval: '2'
