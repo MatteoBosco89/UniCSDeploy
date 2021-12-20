@@ -33,6 +33,7 @@ class BleepingConnector:
         data = scraper.get(url).text
         l = xmltodict.parse(data)
         l1 = l.get('rss').get('channel').get('item')
+        bundleObjects = []
         ext_re_blee = ExternalReference(
             source_name="BleepingComputer",
             description="BleepingComputer.com is a premier destination for computer users of all skill levels to learn how to use and receive support for their computer.",
@@ -43,6 +44,7 @@ class BleepingConnector:
             name="BleepingComputer",
             external_references=[ext_re_blee]
         )
+        bundleObjects.append(identity)
         for l2 in l1:
             timestamp = mktime_tz(parsedate_tz(l2.get('pubDate')))
             pubdt = datetime.fromtimestamp(timestamp)
@@ -56,7 +58,7 @@ class BleepingConnector:
                 is_family=False,
                 name=l2.get('title'),
                 description=l2.get('link'),
-                labels=["malware"],
+                labels=["malware", "bleepingcomputer"],
                 external_references=[ext_re]
             )
             report = Report(
@@ -64,7 +66,7 @@ class BleepingConnector:
                 report_types=["malware"],
                 name=l2.get('title'),
                 published=pubdt,
-                labels=["malware"],
+                labels=["malware", "bleepingcomputer"],
                 object_refs=[malware.id],
                 created_by_ref=identity.id,
                 external_references=[ext_re]
@@ -73,21 +75,14 @@ class BleepingConnector:
                 id=OpenCTIStix2Utils.generate_random_stix_id("note"),
                 content=l2.get('title'),
                 object_refs=[malware.id, report.id],
-                labels=["malware"],
+                labels=["malware", "bleepingcomputer"],
                 external_references=[ext_re]
             )
-            bundle = Bundle(
-                objects=[
-                    identity,
-                    malware,
-                    report,
-                    note
-                ],
-                allow_custom=True,
-                entities_types=self.helper.connect_scope,
-                work_id=work_id
-            ).serialize()
-            self.helper.send_stix2_bundle(bundle)
+            bundleObjects.append(malware)
+            bundleObjects.append(report)
+            bundleObjects.append(note)
+        bundle = Bundle(objects=bundleObjects, allow_custom=True).serialize()
+        self.helper.send_stix2_bundle(bundle, work_id=work_id)
 
     def process_data(self):
         try:

@@ -29,6 +29,7 @@ class SecurityAffairs:
     def create_bundle(self, work_id):
         try:
             scraper = Scraper()
+            bundleObjects = []
             data = scraper.getAllArticles()
             security_site = ExternalReference(
                 #https://securityaffairs.co/
@@ -53,6 +54,7 @@ class SecurityAffairs:
                 description = "Twitter profile of SecurityAffairs",
                 source_name = "Twitter.com"
             )
+            bundleObjects.append(identity)
             if(data is not None):
                 for d in data:
                     link = ExternalReference(
@@ -63,7 +65,8 @@ class SecurityAffairs:
                     attack_pattern = AttackPattern(
                         id=OpenCTIStix2Utils.generate_random_stix_id("attack-pattern"),
                         name = d["title"],
-                        description = d["description"]
+                        description = d["description"],
+                        labels=["SecurityAffairs"]
                     )
                     report = Report(
                         id = OpenCTIStix2Utils.generate_random_stix_id("report"),
@@ -81,17 +84,10 @@ class SecurityAffairs:
                             link
                         ]
                     )
-                    bundle = Bundle(
-                        objects=[
-                            identity,
-                            attack_pattern,
-                            report
-                        ],
-                        allow_custom=True,
-                        entities_types=self.helper.connect_scope,
-                        work_id=work_id
-                    ).serialize()
-                    self.helper.send_stix2_bundle(bundle)
+                    bundleObjects.append(attack_pattern)
+                    bundleObjects.append(report)
+                bundle = Bundle(objects=bundleObjects, allow_custom=True).serialize()
+                self.helper.send_stix2_bundle(bundle, work_id=work_id)
             else:
                 self.helper.log_info("Got nothing from page :(")
         except Exception as e:

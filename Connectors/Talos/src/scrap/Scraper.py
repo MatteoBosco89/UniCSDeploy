@@ -4,6 +4,8 @@ import requests
 import cloudscraper
 from datetime import datetime
 import json
+from scrap.scrapexcept import CloudFlareException
+
 
 class Scraper:
     def __init__(self):
@@ -12,7 +14,6 @@ class Scraper:
         self.repId = "https://talosintelligence.com/reputation_center/email_rep#top-senders-ip"
 
     def getZeroDayList(self):
-        print("ZeroDay init txt")
         try:
             scraper = cloudscraper.create_scraper()
             headers = {'User-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'}
@@ -35,11 +36,14 @@ class Scraper:
                         file = open("zeroDays.txt", 'w')
                         for id in vuln_ids:
                             file.write(id+"\n")
+        except(cloudscraper.exceptions.CloudflareChallengeError) as a:
+            print(a)
+        except(CloudFlareException) as a:
+            print(a)
         except(requests.ConnectionError)as exception:
             print("Connection Error")
         except(requests.Timeout)as exception:
             print("Connection Timeout")
-        print("ZeroDay finished")
 
     def zeroDayFileHandler(self):
         file_list = open("zeroDays.txt", "r")
@@ -59,6 +63,10 @@ class Scraper:
                     d = {"id":line.rstrip("\n") , "date":str(date_time_obj)}
                     #boundle_data.append(d)
                     return json.dumps(d)
+        except(cloudscraper.exceptions.CloudflareChallengeError) as a:
+            print(a)
+        except(CloudFlareException) as a:
+            print(a)
         except(requests.ConnectionError)as exception:
             print("Connection Error")
             return None
@@ -69,7 +77,6 @@ class Scraper:
 
 
     def getDiscloseds(self):
-        print("Disclosed txt init")
         try:
             scraper = cloudscraper.create_scraper()
             headers = {'User-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'}
@@ -92,19 +99,20 @@ class Scraper:
                                 id = td.find("a").text.strip()
                                 link = td.find("a").get("href")
                                 file.write(id + ", " + "https://talosintelligence.com"+link + "\n")
-
+        except(cloudscraper.exceptions.CloudflareChallengeError) as a:
+            print(a)
+        except(CloudFlareException) as a:
+            print(a)
         except(requests.ConnectionError)as exception:
             print("Connection Error")
         except(requests.Timeout)as exception:
             print("Connection Timeout")
-        print("Disclosed txt finished")
 
     def disclosedsFileHandler(self):
         discl_list = open("discloseds.txt", "r")
         return discl_list
 
     def disclosedsSingle(self, line):
-        print("Disclosed json init")
         try:
             scraper = cloudscraper.create_scraper()
             #boundle_data = []
@@ -192,14 +200,16 @@ class Scraper:
 
                     #boundle_data.append(data)
                     return json.dumps(data)
-
+        except(cloudscraper.exceptions.CloudflareChallengeError) as a:
+            print(a)
+        except(CloudFlareException) as a:
+            print(a)
         except(requests.ConnectionError)as exception:
             print("Connection Error")
             return None
         except(requests.Timeout)as exception:
             print("Connection Timeout")
             return None
-        print("Disclosed json finished")
 
     #This method scrape the reputation ip
     #Currently can't download the information
@@ -233,7 +243,10 @@ class Scraper:
                                         line += "\n"
 
                                 file.write(line)
-
+        except(cloudscraper.exceptions.CloudflareChallengeError) as a:
+            print(a)
+        except(CloudFlareException) as a:
+            print(a)
         except(requests.ConnectionError)as exception:
             print("Connection Error")
         except(requests.Timeout)as exception:

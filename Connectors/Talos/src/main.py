@@ -31,23 +31,21 @@ class TalosConnector:
 
 
     def create_bundle(self, work_id):
+        bundleObjectsz = []
         self.helper.log_info("CREATE BUNDLE CALLED")
+        self.helper.log_info("WORK START")
         try:
             scraper = Scraper()
-            self.helper.log_info("SCRAPER CALLED")
             scraper.scraping()
-            self.helper.log_info("SCRAPING FINISHED AND FILES CREATED")
             identity = Identity(
                 id=OpenCTIStix2Utils.generate_random_stix_id("identity"),
                 name="TalosIntelligence"
             )
 
             #create bundle for zero day vulnerablity
-            self.helper.log_info("ZERO BUNDLE CALL")
             hand = scraper.zeroDayFileHandler()
             self.helper.log_info(hand)
             for line in hand:
-                self.helper.log_info(line)
                 js = scraper.zeroDaySingle(line)
                 if(js is None):
                     self.helper.log_info("Got None on line " + line)
@@ -62,19 +60,13 @@ class TalosConnector:
                         description = "zero day vulnerability",
                         labels=["ZeroDay", "Vulnerability"]
                     )
-                    bundle = Bundle(
-                        objects = [
-                            identity,
-                            vulnerability
-                        ],
-                        allow_custom = True,
-                        entities_types = self.helper.connect_scope,
-                        work_id = work_id
-                    ).serialize()
-                    self.helper.send_stix2_bundle(bundle)
-            self.helper.log_info("ZERO BUNDLE CALLED")
+                    bundleObjectsz.append(identity)
+                    bundleObjectsz.append(vulnerability)
+            bundle = Bundle(objects=bundleObjectsz, allow_custom=True).serialize()
+            self.helper.send_stix2_bundle(bundle, work_id=work_id)
+            self.helper.log_info("ZERO DAY FINISH")
+            bundleObjects = []
             #create bundle for discloseds vulnerability
-            self.helper.log_info("DISCLOSEDS BUNDLE CALL")
             hand = scraper.disclosedsFileHandler()
             for line in hand:
                 datas = scraper.disclosedsSingle(line)
@@ -97,6 +89,7 @@ class TalosConnector:
                     vulnerability = Vulnerability(
                         id = OpenCTIStix2Utils.generate_random_stix_id("vulnerability"),
                         name = data["cve_number"],
+                        created_by_ref = identity.id,
                         description = data["short_description"]+"\n"+data["summary"],
                         labels = [
                             data["id"],
@@ -111,9 +104,10 @@ class TalosConnector:
                     note = Note(
                         id = OpenCTIStix2Utils.generate_random_stix_id("note"),
                         created = pubDate,
+                        created_by_ref = identity.id,
                         content = data["timeline"],
                         abstract = "Timeline",
-                        labels=["Talos"],
+                        labels=["Talos Intelligence"],
                         object_refs=[vulnerability.id]
                     )
                     report = Report(
@@ -132,20 +126,14 @@ class TalosConnector:
                         target_ref = report.id,
                         confidence = self.helper.connect_confidence_level
                     )
-                    bundle = Bundle(
-                        objects=[
-                            identity,
-                            vulnerability,
-                            note,
-                            report,
-                            relationship
-                        ],
-                        allow_custom=True,
-                        entities_types=self.helper.connect_scope,
-                        work_id=work_id
-                    ).serialize()
-                    self.helper.send_stix2_bundle(bundle)
-                self.helper.log_info("DISCLOSEDS BUNDLE CALLED")
+                    bundleObjects.append(identity)
+                    bundleObjects.append(vulnerability)
+                    bundleObjects.append(note)
+                    bundleObjects.append(report)
+                    bundleObjects.append(relationship)
+            bundle = Bundle(objects=bundleObjects, allow_custom=True).serialize()
+            self.helper.send_stix2_bundle(bundle, work_id=work_id)
+            self.helper.log_info("DISCLOSEDS FINISH")
         except Exception as e:
             self.helper.log_info(e)
             self.helper.log_info(traceback.format_exc())
@@ -204,7 +192,7 @@ class TalosConnector:
         self.helper.log_info("Fetching Talos intelligence data...")
         while True:
             self.process_data()
-            time.sleep(600)
+            time.sleep(1800)
 
 if __name__ == "__main__":
     try:
