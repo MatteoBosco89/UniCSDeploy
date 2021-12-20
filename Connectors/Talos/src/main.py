@@ -192,7 +192,7 @@ class TalosConnector:
         self.helper.log_info("Fetching Talos intelligence data...")
         while True:
             self.process_data()
-            time.sleep(1800)
+            time.sleep(3600)
 
 if __name__ == "__main__":
     try:
